@@ -1,12 +1,15 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\TicketResource;
 use App\Models\Ticket;
 use Illuminate\Http\Request;
 
 class TicketController extends Controller
 {
+    use AuthorizesRequests;
     /**
      * Display a listing of the resource.
      */
@@ -18,10 +21,10 @@ class TicketController extends Controller
 
         $this->authorize('viewAny', Ticket::class);
     
-        $tickets = Ticket::get();
+        $tickets = Ticket::all();   
 
             if($tickets->count() > 0){
-                return TickeResource::collection($tickets);
+                return TicketResource::collection($tickets);
             }
             else{
                 return response()->json([
@@ -35,7 +38,7 @@ class TicketController extends Controller
      */
     public function store(Request $request)
     {
-        $request = validate([
+        $request -> validate([
             'subject' => 'required|string|max:255',
             'description'=> 'required|string|max:255',
             'priority' => 'required|string|max:255',
@@ -43,19 +46,19 @@ class TicketController extends Controller
             'file' => 'nullable|file|mimes:jpgs,pdf,png|max:1024',
         ]);
 
-        $filePath = null;
+        $filepath = null;
         if($request->hasFile('file')){
-            $filePath = $request->file('file')->store('product', 'public');
+            $filepath = $request->file('file')->store('product', 'public');
         }
 
-        $ticket::create([
+        $ticket = Ticket::create([
             'subject' => $request->subject,
             'description'=> $request->description,
             'priority' => $request->priority,
             'department' =>$request->department,
             'file' =>$filepath,
             'status' => 'Open',
-            'user_id'=> Auth()->id
+            'user_id'=> Auth()->id()
         ]);
 
         return response()->json([
@@ -81,7 +84,7 @@ class TicketController extends Controller
     {
         $this->authorize('update', $ticket);
     
-        $request = validate([
+        $request -> validate([
           'status' => 'required|string' 
         ]);
 

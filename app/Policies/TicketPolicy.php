@@ -14,7 +14,7 @@ class TicketPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->role === 'admin'
+        return $user->role === 'admin';
     }
 
     /**
@@ -23,7 +23,7 @@ class TicketPolicy
      */
     public function view(User $user, Ticket $ticket): bool
     {
-        return true;
+        return $user->id === $ticket->user_id || $user->role === 'admin';
     }
 
     /**

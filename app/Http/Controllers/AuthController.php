@@ -16,7 +16,7 @@ class AuthController extends Controller
         // input field validation
         $request->validate([
             'email' => 'required|string|email|max:255',
-            'password' => 'required|string|min:8',
+            'password' => 'required|string',
         ]);
 
         $user = User::where('email', $request->email)->first();
