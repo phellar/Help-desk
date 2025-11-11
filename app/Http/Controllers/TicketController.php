@@ -1,11 +1,14 @@
 <?php
 
 namespace App\Http\Controllers;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\TicketResource;
+use App\Mail\TicketCreated;
 use App\Models\Ticket;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class TicketController extends Controller
 {
@@ -14,9 +17,10 @@ class TicketController extends Controller
      * Display a listing of the resource.
      */
 
-
+    
     public function index()
     {  
+                
         // only admin can view all tickets
 
         $this->authorize('viewAny', Ticket::class);
@@ -58,8 +62,12 @@ class TicketController extends Controller
             'department' =>$request->department,
             'file' =>$filepath,
             'status' => 'Open',
-            'user_id'=> Auth()->id()
+            'user_id'=> Auth::id()
         ]);
+
+        // send an Email Notification after Ticket has been created successfully
+        Mail::to(Auth::user()->email)
+            ->queue(new TicketCreated($ticket));
 
         return response()->json([
                 'message' => 'Ticket Created Successfully',

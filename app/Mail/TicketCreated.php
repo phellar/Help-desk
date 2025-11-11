@@ -5,6 +5,7 @@ namespace App\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -16,9 +17,11 @@ class TicketCreated extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public $ticket;
+
+    public function __construct($ticket)
     {
-        //
+        $this->ticket = $ticket;
     }
 
     /**
@@ -28,16 +31,18 @@ class TicketCreated extends Mailable
     {
         return new Envelope(
             subject: 'Ticket Created',
+            from: new Address(env('MAIL_FROM_ADDRESS'), "Admin")
         );
     }
-
+ 
     /**
      * Get the message content definition.
      */
     public function content(): Content
     {
         return new Content(
-            view: 'ticketCreated.blade.php',
+            view: 'email.ticketCreated',
+            with: ['ticket' => $this->ticket],
         );
     }
 
